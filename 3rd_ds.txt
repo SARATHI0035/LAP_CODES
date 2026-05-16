@@ -1,0 +1,22 @@
+set.seed(123)
+data <- rnorm(50, mean = 50, sd = 10)
+print(data)
+mean(data)
+median(data)
+min(data)
+max(data)
+range(data)
+var(data)
+sd(data)
+quantile(data)
+hist(data,
+     probability = TRUE,
+     main = "Bell Curve (Normal Distribution)",
+     col = "lightblue",
+     xlab = "Values")
+curve(dnorm(x,
+            mean = mean(data),
+            sd = sd(data)),
+      col = "red",
+      lwd = 2,
+      add = TRUE)

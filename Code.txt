@@ -1,70 +1,68 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Donation Platform</title>
-  <style>
-    body {
-      font-family: Arial;
-      background: #f2f2f2;
-      padding: 20px;
-    }
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from scipy.stats import qmc
 
-    .box {
-      background: white;
-      padding: 20px;
-      width: 350px;
-      margin: auto;
-      border-radius: 10px;
-      box-shadow: 0 0 10px gray;
-    }
+# Function
+def f(x):
+    return np.sin(x)
 
-    input, button {
-      width: 100%;
-      padding: 10px;
-      margin-top: 10px;
-    }
+# Limits
+a, b = 0, np.pi
+N = 1000
 
-    .progress {
-      background: #ddd;
-      height: 20px;
-      border-radius: 10px;
-      overflow: hidden;
-      margin-top: 10px;
-    }
+# Sobol quasi-random samples
+sampler = qmc.Sobol(d=1, scramble=True)
+x_quasi = sampler.random_base2(m=10)
 
-    .bar {
-      height: 20px;
-      width: 70%;
-      background: green;
-      text-align: center;
-      color: white;
-    }
-  </style>
-</head>
+# Scale points
+x_scaled = a + (b - a) * x_quasi.flatten()[:N]
 
-<body>
+# Function values
+y = f(x_scaled)
 
-  <div class="box">
-    <h2>Donation Platform</h2>
+# Monte Carlo Integration
+integral_estimate = (b - a) * np.mean(y)
+variance = np.var(y, ddof=1)
 
-    <input type="text" placeholder="Campaign Name">
+# DataFrame
+df = pd.DataFrame({
+    'x': x_scaled,
+    'f(x)': y
+})
 
-    <p><b>Goal:</b> ₹10,000</p>
-    <p><b>Raised:</b> ₹7,000</p>
+# Output
+print("OUTPUT\n")
+print(df.head())
 
-    <div class="progress">
-      <div class="bar">70%</div>
-    </div>
+print("Monte Carlo Estimate of integral:",
+      integral_estimate)
 
-    <h3>Donor Details</h3>
-    <ul>
-      <li>Surya - ₹1000</li>
-      <li>Rahul - ₹2000</li>
-      <li>Anu - ₹4000</li>
-    </ul>
+print("Variance of function values:",
+      variance)
 
-    <button>Donate Now</button>
-  </div>
+# Scatter Plot
+plt.figure(figsize=(8,4))
+sns.scatterplot(x=x_scaled, y=y, color='blue')
 
-</body>
-</html>
+plt.title('Quasi-random Samples of sin(x)')
+plt.xlabel('x')
+plt.ylabel('f(x) = sin(x)')
+plt.grid(True)
+
+plt.show()
+
+# Histogram
+plt.figure(figsize=(8,4))
+
+sns.histplot(y,
+             bins=20,
+             kde=True,
+             color='green')
+
+plt.title('Distribution of f(x) Values')
+plt.xlabel('f(x)')
+plt.ylabel('Frequency')
+
+plt.show()
